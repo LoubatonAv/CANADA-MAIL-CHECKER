@@ -1,5 +1,5 @@
 {
   "status": "suspended",
-  "prev": null,
-  "changed": null
+  "prev": "available",
+  "changed": true
 }
