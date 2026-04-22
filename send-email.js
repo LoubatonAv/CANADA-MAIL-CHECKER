@@ -2,11 +2,12 @@ const fs = require("fs");
 const nodemailer = require("nodemailer");
 
 async function send() {
-  const result = JSON.parse(fs.readFileSync("result.json"));
+  let result = null;
 
-  if (!result.changed) {
-    console.log("No change, no email.");
-    return;
+  try {
+    result = JSON.parse(fs.readFileSync("result.json"));
+  } catch {
+    console.log("No result file, probably failure");
   }
 
   const transporter = nodemailer.createTransport({
@@ -17,14 +18,32 @@ async function send() {
     },
   });
 
+  // אם אין result → כנראה קריסה
+  if (!result) {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_TO,
+      subject: "🚨 Canada Mail Checker FAILED",
+      text: "The workflow failed before producing results.",
+    });
+
+    console.log("Failure email sent");
+    return;
+  }
+
+  if (!result.changed) {
+    console.log("No change, no email.");
+    return;
+  }
+
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_TO,
     subject: `Canada Post changed: ${result.prev} → ${result.status}`,
     text: `Status changed:\n${result.prev} → ${result.status}`,
   });
-  console.log(process.env.EMAIL_USER);
-  console.log("Email sent");
+
+  console.log("Change email sent");
 }
 
 send();
