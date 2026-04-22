@@ -23,7 +23,7 @@ async function send() {
     subject: `Canada Post changed: ${result.prev} → ${result.status}`,
     text: `Status changed:\n${result.prev} → ${result.status}`,
   });
-
+  console.log(process.env.EMAIL_USER);
   console.log("Email sent");
 }
 
